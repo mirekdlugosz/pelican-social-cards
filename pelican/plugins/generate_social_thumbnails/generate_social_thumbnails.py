@@ -17,7 +17,6 @@ from smartypants import smartypants
 
 logger = logging.getLogger(__name__)
 
-FONT_SIZE = 70
 LEADING = 15
 
 CANVAS_HORIZONTAL_MARGIN = 40
@@ -56,6 +55,29 @@ class TextBox:
         self.height = self.line_height * self.lines - LEADING
 
 
+def get_plugin_settings(pelican_settings):
+    content_path = Path(pelican_settings.get('PATH'))
+    SOCIAL_THUMBS_PATH = pelican_settings.get('SOCIAL_THUMBS_PATH', 'social-thumbs/')
+    SOCIAL_THUMBS_PATH = content_path / SOCIAL_THUMBS_PATH
+    SOCIAL_THUMBS_TEMPLATE = pelican_settings.get('SOCIAL_THUMBS_TEMPLATE')
+    SOCIAL_THUMBS_FONT_FILENAME = pelican_settings.get('SOCIAL_THUMBS_FONT_FILENAME', "Arial.ttf")
+    SOCIAL_THUMBS_FONT_SIZE = pelican_settings.get('SOCIAL_THUMBS_FONT_SIZE', "70")
+    SOCIAL_THUMBS_FONT_FILL = pelican_settings.get('SOCIAL_THUMBS_FONT_FILL', "#000000")
+
+    try:
+        SOCIAL_THUMBS_FONT_SIZE = int(SOCIAL_THUMBS_FONT_SIZE)
+    except ValueError:
+        logger.error("SOCIAL_THUMBS_FONT_SIZE must be a number")
+
+    return {
+        'TEMPLATE': SOCIAL_THUMBS_TEMPLATE,
+        'PATH': SOCIAL_THUMBS_PATH,
+        'FONT_FILENAME': SOCIAL_THUMBS_FONT_FILENAME,
+        'FONT_SIZE': SOCIAL_THUMBS_FONT_SIZE,
+        'FONT_FILL': SOCIAL_THUMBS_FONT_FILL,
+    }
+
+
 def get_article_title(article):
     # FIXME: if user set "some" kind of metadata field, just use that - possibly after split
     if not article.settings.get('TYPOGRIFY'):
@@ -69,7 +91,10 @@ def get_article_title(article):
     return html.unescape(smartypants(title.strip()))
 
 
-def generate_thumbnail(template, text, font, output_path):
+def generate_thumbnail(template, text, output_path, context):
+    font = context['image_font']
+    font_fill = context['FONT_FILL']
+
     draw = ImageDraw.Draw(template)
     text_box = TextBox(text, font)
 
@@ -79,49 +104,46 @@ def generate_thumbnail(template, text, font, output_path):
         if current_x < 0:
             logger.error(f"calculated negative x margin for '{line}', resetting to 0")
             current_x = 0
-        draw.text((current_x, current_y), line, font=font, fill="#212529")
+        draw.text((current_x, current_y), line, font=font, fill=font_fill)
         current_y += text_box.line_height
     template.save(output_path)
 
 
 def process_article(content_object, context):
-    template = context['SOCIAL_THUMBS_TEMPLATE'].copy()
-
     article_title = get_article_title(content_object)
     wrapped_title = textwrap.wrap(article_title, width=30)  # FIXME: we need smarter way, that would use rendered font width
 
     thumbnail_stem = content_object.save_as.replace('/index.html', '').replace('/', '-').strip('-')
     thumbnail_name = f"{thumbnail_stem}.png"
-    thumbnail_path = context['SOCIAL_THUMBS_PATH'] / thumbnail_name
+    thumbnail_path = context['PATH'] / thumbnail_name
 
     if thumbnail_path.exists():  # FIXME: we might need a way to force overwriting anyway
         logger.debug(f"Refusing to overwrite existing {thumbnail_path}")
         return
 
-    generate_thumbnail(template, wrapped_title, context['FONT'], thumbnail_path)
+    template = context['image_template'].copy()
+
+    generate_thumbnail(template, wrapped_title, thumbnail_path, context)
 
 
 def run_plugin(article_generator):
-    CONTENT_PATH = Path(article_generator.settings.get('PATH'))
-    SOCIAL_THUMBS_TEMPLATE = article_generator.settings.get('SOCIAL_THUMBS_TEMPLATE')
-    SOCIAL_THUMBS_PATH = article_generator.settings.get('SOCIAL_THUMBS_PATH', 'social-thumbs/')
-    SOCIAL_THUMBS_PATH = CONTENT_PATH / SOCIAL_THUMBS_PATH
+    plugin_settings = get_plugin_settings(article_generator.settings)
 
-    SOCIAL_THUMBS_PATH.mkdir(exist_ok=True)
+    plugin_settings['PATH'].mkdir(exist_ok=True)
 
-    if not SOCIAL_THUMBS_TEMPLATE:
+    if not plugin_settings['TEMPLATE']:
         logger.error("Setting SOCIAL_THUMBS_TEMPLATE must be set")
         return
 
-    template = Image.open(SOCIAL_THUMBS_TEMPLATE)
-    template.convert("RGBA")
-    font = ImageFont.truetype("DejaVuSans.ttf", size=FONT_SIZE)
+    template = Image.open(plugin_settings['TEMPLATE'])
+    image_font = ImageFont.truetype("DejaVuSans.ttf", size=plugin_settings['FONT_SIZE'])
 
-    context = {
-        'SOCIAL_THUMBS_PATH': SOCIAL_THUMBS_PATH,
-        'SOCIAL_THUMBS_TEMPLATE': template,
-        'FONT': font,
+    additional_context = {
+        'image_template': template,
+        'image_font': image_font
     }
+
+    context = {**plugin_settings, **additional_context}
 
     for article in article_generator.articles:
         process_article(article, context)
