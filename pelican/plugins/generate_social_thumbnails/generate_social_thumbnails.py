@@ -19,6 +19,12 @@ logger = logging.getLogger(__name__)
 
 LEADING = 15
 
+# FIXME: better API:
+# - CANVAS_WIDTH - preferred canvas width
+# - CANVAS_HEIGHT - prefeered canvas height
+# - CANVAS_LEFT - distance from left border to canvas left border
+# - CANVAS_TOP - distance from top border to canvas top border
+
 CANVAS_HORIZONTAL_MARGIN = 40
 CANVAS_WIDTH = 1200 - CANVAS_HORIZONTAL_MARGIN * 2
 CANVAS_HEIGHT = 382
@@ -98,6 +104,9 @@ def generate_thumbnail(template, text, output_path, context):
     draw = ImageDraw.Draw(template)
     text_box = TextBox(text, font)
 
+    # FIXME: different vertical and horizontal alignments
+    # FIXME: warning, if text_box sizes are bigger than canvas
+
     current_y = ((CANVAS_HEIGHT - text_box.height) // 2) + CANVAS_TOP_MARGIN
     for line in text:
         current_x = ((CANVAS_WIDTH - text_box.line_dimensions[line]['width']) // 2) + CANVAS_HORIZONTAL_MARGIN
@@ -124,6 +133,7 @@ def process_article(content_object, context):
     template = context['image_template'].copy()
 
     generate_thumbnail(template, wrapped_title, thumbnail_path, context)
+    # FIXME: do something so theme template can use some data
 
 
 def run_plugin(article_generator):
