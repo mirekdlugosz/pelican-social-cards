@@ -17,53 +17,43 @@ from smartypants import smartypants
 
 logger = logging.getLogger(__name__)
 
+FONT_SIZE = 70
+LEADING = 15
 
-class TitleCard:
+CANVAS_HORIZONTAL_MARGIN = 40
+CANVAS_WIDTH = 1200 - CANVAS_HORIZONTAL_MARGIN * 2
+CANVAS_HEIGHT = 382
+CANVAS_TOP_MARGIN = 630 - CANVAS_HEIGHT
+
+
+class TextBox:
     def __init__(self, text, font):
+        self._text = text
+        self._font = font
         self.width = 0
         self.height = 0
-        self.img = None
-        self._text_img = None
-        self._bg_img = None
+        self.lines = 0
+        self.line_height = 0
+        self.line_dimensions = {}
 
-        self._create_text_img(text, font)
-        self._create_bg_img()
-        self._create_final_img()
+        self._compute_values()
 
-    def _create_text_img(self, text, font):
-        LEADING = 20
-        img = Image.new('RGBA', (1200, 630), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
+    def _compute_values(self):
+        max_width = 0
+        max_height = 0
 
-        text_params = {
-            'text': "\n".join(text),
-            'font': font,
-            'spacing': LEADING,
-        }
-        self.width, self.height = draw.multiline_textsize(**text_params)
-        self.height += LEADING
-        draw.multiline_text((0, 0), align='center', fill='#000000', **text_params)
-        self._text_img = img.crop((0, 0, self.width, self.height))
-        self._text_img.save('/tmp/test-text-img.png')
-
-    def _create_bg_img(self):
-        w, h = self._text_img.size
-        w += 40
-        h += 40
-        img = Image.new('RGBA', (w, h), (255, 255, 255, 235))
-        img.paste(self._text_img, (20, 20), self._text_img)
-        self._bg_img = img
-        self._bg_img.save('/tmp/test-bg-img.png')
-
-    def _create_final_img(self):
-        img = Image.new('RGBA', (1200, 630), (0, 0, 0, 0))
-        width, height = self._bg_img.size
-        left = ((800 - width) // 2) + 200
-        top = (630 - height) // 2
-
-        img.paste(self._bg_img, (left, top), self._bg_img)
-        self.img = img
-        self.img.save('/tmp/test-final-img.png')
+        for line in self._text:
+            font_width, font_height = self._font.getsize(line)
+            self.line_dimensions[line] = {
+                'width': font_width,
+                'height': font_height,
+            }
+            max_width = max(font_width, max_width)
+            max_height = max(font_height, max_height)
+        self.width = max_width
+        self.line_height = max_height + LEADING
+        self.lines = len(self._text)
+        self.height = self.line_height * self.lines - LEADING
 
 
 def get_article_title(article):
@@ -80,20 +70,23 @@ def get_article_title(article):
 
 
 def generate_thumbnail(template, text, output_path):
-    FONT_SIZE = 70
-    MAX_W = 800
-    IMG_H = 630
-    MARGIN_LEFT = 200
-
-    bg = Image.open(template)
-    wrapped_text = textwrap.wrap(text, width=23)  # FIXME: we need smarter way, that would use rendered font width
+    # FIXME: loading of template and font should be done only once
+    template = Image.open(template)
+    template.convert("RGBA")
     font = ImageFont.truetype("DejaVuSans.ttf", size=FONT_SIZE)
-    title_card = TitleCard(wrapped_text, font)
 
-    bg.convert("RGBA")
-    bg = Image.alpha_composite(bg, title_card.img)
+    draw = ImageDraw.Draw(template)
+    text_box = TextBox(text, font)
 
-    bg.save(output_path)
+    current_y = ((CANVAS_HEIGHT - text_box.height) // 2) + CANVAS_TOP_MARGIN
+    for line in text:
+        current_x = ((CANVAS_WIDTH - text_box.line_dimensions[line]['width']) // 2) + CANVAS_HORIZONTAL_MARGIN
+        if current_x < 0:
+            logger.error(f"calculated negative x margin for '{line}', resetting to 0")
+            current_x = 0
+        draw.text((current_x, current_y), line, font=font, fill="#212529")
+        current_y += text_box.line_height
+    template.save(output_path)
 
 
 def process_article(content_object):
@@ -109,6 +102,7 @@ def process_article(content_object):
         return
 
     article_title = get_article_title(content_object)
+    wrapped_title = textwrap.wrap(article_title, width=30)  # FIXME: we need smarter way, that would use rendered font width
 
     thumbnail_stem = content_object.save_as.replace('/index.html', '').replace('/', '-').strip('-')
     thumbnail_name = f"{thumbnail_stem}.png"
@@ -118,7 +112,7 @@ def process_article(content_object):
         logger.debug(f"Refusing to overwrite existing {thumbnail_path}")
         return
 
-    generate_thumbnail(SOCIAL_THUMBS_TEMPLATE, article_title, thumbnail_path)
+    generate_thumbnail(SOCIAL_THUMBS_TEMPLATE, wrapped_title, thumbnail_path)
 
 
 def run_plugin(article_generator):
