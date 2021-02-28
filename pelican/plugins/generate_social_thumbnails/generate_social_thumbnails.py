@@ -69,12 +69,7 @@ def get_article_title(article):
     return html.unescape(smartypants(title.strip()))
 
 
-def generate_thumbnail(template, text, output_path):
-    # FIXME: loading of template and font should be done only once
-    template = Image.open(template)
-    template.convert("RGBA")
-    font = ImageFont.truetype("DejaVuSans.ttf", size=FONT_SIZE)
-
+def generate_thumbnail(template, text, font, output_path):
     draw = ImageDraw.Draw(template)
     text_box = TextBox(text, font)
 
@@ -89,10 +84,27 @@ def generate_thumbnail(template, text, output_path):
     template.save(output_path)
 
 
-def process_article(content_object):
-    CONTENT_PATH = Path(content_object.settings.get('PATH'))
-    SOCIAL_THUMBS_TEMPLATE = content_object.settings.get('SOCIAL_THUMBS_TEMPLATE')
-    SOCIAL_THUMBS_PATH = content_object.settings.get('SOCIAL_THUMBS_PATH', 'social-thumbs/')
+def process_article(content_object, context):
+    template = context['SOCIAL_THUMBS_TEMPLATE'].copy()
+
+    article_title = get_article_title(content_object)
+    wrapped_title = textwrap.wrap(article_title, width=30)  # FIXME: we need smarter way, that would use rendered font width
+
+    thumbnail_stem = content_object.save_as.replace('/index.html', '').replace('/', '-').strip('-')
+    thumbnail_name = f"{thumbnail_stem}.png"
+    thumbnail_path = context['SOCIAL_THUMBS_PATH'] / thumbnail_name
+
+    if thumbnail_path.exists():  # FIXME: we might need a way to force overwriting anyway
+        logger.debug(f"Refusing to overwrite existing {thumbnail_path}")
+        return
+
+    generate_thumbnail(template, wrapped_title, context['FONT'], thumbnail_path)
+
+
+def run_plugin(article_generator):
+    CONTENT_PATH = Path(article_generator.settings.get('PATH'))
+    SOCIAL_THUMBS_TEMPLATE = article_generator.settings.get('SOCIAL_THUMBS_TEMPLATE')
+    SOCIAL_THUMBS_PATH = article_generator.settings.get('SOCIAL_THUMBS_PATH', 'social-thumbs/')
     SOCIAL_THUMBS_PATH = CONTENT_PATH / SOCIAL_THUMBS_PATH
 
     SOCIAL_THUMBS_PATH.mkdir(exist_ok=True)
@@ -101,23 +113,18 @@ def process_article(content_object):
         logger.error("Setting SOCIAL_THUMBS_TEMPLATE must be set")
         return
 
-    article_title = get_article_title(content_object)
-    wrapped_title = textwrap.wrap(article_title, width=30)  # FIXME: we need smarter way, that would use rendered font width
+    template = Image.open(SOCIAL_THUMBS_TEMPLATE)
+    template.convert("RGBA")
+    font = ImageFont.truetype("DejaVuSans.ttf", size=FONT_SIZE)
 
-    thumbnail_stem = content_object.save_as.replace('/index.html', '').replace('/', '-').strip('-')
-    thumbnail_name = f"{thumbnail_stem}.png"
-    thumbnail_path = SOCIAL_THUMBS_PATH / thumbnail_name
+    context = {
+        'SOCIAL_THUMBS_PATH': SOCIAL_THUMBS_PATH,
+        'SOCIAL_THUMBS_TEMPLATE': template,
+        'FONT': font,
+    }
 
-    if thumbnail_path.exists():  # FIXME: we might need a way to force overwriting anyway
-        logger.debug(f"Refusing to overwrite existing {thumbnail_path}")
-        return
-
-    generate_thumbnail(SOCIAL_THUMBS_TEMPLATE, wrapped_title, thumbnail_path)
-
-
-def run_plugin(article_generator):
     for article in article_generator.articles:
-        process_article(article)
+        process_article(article, context)
 
 
 def register():
