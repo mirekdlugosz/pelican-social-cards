@@ -7,15 +7,20 @@ Plugin to generate social media thumbnails with post title embedded
 
 import html
 import logging
-import textwrap
 from pathlib import Path
+import textwrap
 
 from pelican import signals
+from pelican.generators import ArticlesGenerator, StaticGenerator
 from PIL import Image, ImageDraw, ImageFont
 from smartypants import smartypants
 
+from .settings import get_plugin_settings
+
 
 logger = logging.getLogger(__name__)
+
+# FIXME: constants should be settings
 
 LEADING = 15
 
@@ -61,27 +66,9 @@ class TextBox:
         self.height = self.line_height * self.lines - LEADING
 
 
-def get_plugin_settings(pelican_settings):
-    content_path = Path(pelican_settings.get('PATH'))
-    SOCIAL_THUMBS_PATH = pelican_settings.get('SOCIAL_THUMBS_PATH', 'social-thumbs/')
-    SOCIAL_THUMBS_PATH = content_path / SOCIAL_THUMBS_PATH
-    SOCIAL_THUMBS_TEMPLATE = pelican_settings.get('SOCIAL_THUMBS_TEMPLATE')
-    SOCIAL_THUMBS_FONT_FILENAME = pelican_settings.get('SOCIAL_THUMBS_FONT_FILENAME', "Arial.ttf")
-    SOCIAL_THUMBS_FONT_SIZE = pelican_settings.get('SOCIAL_THUMBS_FONT_SIZE', "70")
-    SOCIAL_THUMBS_FONT_FILL = pelican_settings.get('SOCIAL_THUMBS_FONT_FILL', "#000000")
-
-    try:
-        SOCIAL_THUMBS_FONT_SIZE = int(SOCIAL_THUMBS_FONT_SIZE)
-    except ValueError:
-        logger.error("SOCIAL_THUMBS_FONT_SIZE must be a number")
-
-    return {
-        'TEMPLATE': SOCIAL_THUMBS_TEMPLATE,
-        'PATH': SOCIAL_THUMBS_PATH,
-        'FONT_FILENAME': SOCIAL_THUMBS_FONT_FILENAME,
-        'FONT_SIZE': SOCIAL_THUMBS_FONT_SIZE,
-        'FONT_FILL': SOCIAL_THUMBS_FONT_FILL,
-    }
+def is_plugin_configured():
+    plugin_settings = get_plugin_settings()
+    return plugin_settings.get('configured', False)
 
 
 def get_article_title(article):
@@ -97,7 +84,17 @@ def get_article_title(article):
     return html.unescape(smartypants(title.strip()))
 
 
-def generate_thumbnail(template, text, output_path, context):
+def create_paths_map(staticfiles):
+    plugin_settings = get_plugin_settings()
+
+    return {
+        static_file.source_path: static_file.save_as
+        for static_file in staticfiles
+        if Path(static_file.source_path).is_relative_to(plugin_settings['PATH'])
+    }
+
+
+def generate_thumbnail_image(template, text, output_path, context):
     font = context['image_font']
     font_fill = context['FONT_FILL']
 
@@ -118,7 +115,8 @@ def generate_thumbnail(template, text, output_path, context):
     template.save(output_path)
 
 
-def process_article(content_object, context):
+def generate_thumbnail_for_object(content_object, context):
+    # FIXME: drop early if object already has og_image set
     article_title = get_article_title(content_object)
     wrapped_title = textwrap.wrap(article_title, width=30)  # FIXME: we need smarter way, that would use rendered font width
 
@@ -126,24 +124,25 @@ def process_article(content_object, context):
     thumbnail_name = f"{thumbnail_stem}.png"
     thumbnail_path = context['PATH'] / thumbnail_name
 
+    # FIXME: I *think* that should be property of object, not key in metadata
+    content_object.metadata["og_image_source"] = thumbnail_path.as_posix()
+
     if thumbnail_path.exists():  # FIXME: we might need a way to force overwriting anyway
         logger.debug(f"Refusing to overwrite existing {thumbnail_path}")
         return
 
     template = context['image_template'].copy()
 
-    generate_thumbnail(template, wrapped_title, thumbnail_path, context)
-    # FIXME: do something so theme template can use some data
+    generate_thumbnail_image(template, wrapped_title, thumbnail_path, context)
 
 
-def run_plugin(article_generator):
-    plugin_settings = get_plugin_settings(article_generator.settings)
+def generate_thumbnails(article_generator):
+    if not is_plugin_configured():
+        return
+
+    plugin_settings = get_plugin_settings()
 
     plugin_settings['PATH'].mkdir(exist_ok=True)
-
-    if not plugin_settings['TEMPLATE']:
-        logger.error("Setting SOCIAL_THUMBS_TEMPLATE must be set")
-        return
 
     template = Image.open(plugin_settings['TEMPLATE'])
     image_font = ImageFont.truetype("DejaVuSans.ttf", size=plugin_settings['FONT_SIZE'])
@@ -156,8 +155,42 @@ def run_plugin(article_generator):
     context = {**plugin_settings, **additional_context}
 
     for article in article_generator.articles:
-        process_article(article, context)
+        generate_thumbnail_for_object(article, context)
+
+
+def attach_metadata(finished_generators):
+    if not is_plugin_configured():
+        return
+
+    plugin_settings = get_plugin_settings()
+
+    for generator in finished_generators:
+        if isinstance(generator, ArticlesGenerator):
+            articles_generator = generator
+        if isinstance(generator, StaticGenerator):
+            static_generator = generator
+
+    thumb_paths_map = create_paths_map(static_generator.staticfiles)
+
+    # FIXME: drafts, translations, pages...
+    for article in articles_generator.articles:
+        # FIXME: don't bother if article already has og_image set
+        key = article.metadata.get("og_image_source")
+        value = thumb_paths_map.get(key)
+        if not key or not value:
+            continue
+        # FIXME: appending SITEURL should be configurable - some themes add that on their own, some do not
+        # something like THUMB_URL = '{siteurl}/{value}', with these two keys being recognized
+        value = f"{plugin_settings['SITEURL']}/{value}"
+        # FIXME: key should be configurable - most themes use `og_image`, but some use `featured_image`, `image` or `header_cover`
+        article.metadata["og_image"] = value
+
+
+def populate_settings(pelican_instance):
+    get_plugin_settings(pelican_instance.settings)
 
 
 def register():
-    signals.article_generator_finalized.connect(run_plugin)
+    signals.initialized.connect(populate_settings)
+    signals.article_generator_finalized.connect(generate_thumbnails)
+    signals.all_generators_finalized.connect(attach_metadata)
