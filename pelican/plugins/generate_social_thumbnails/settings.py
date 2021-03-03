@@ -19,9 +19,9 @@ DEFAULT_SETTINGS = {
 MANDATORY_SETTINGS = ['TEMPLATE']
 
 
-def populate_plugin_settings(pelican_settings):
+def populate_plugin_settings(pelican_instance):
     for key, default_value in DEFAULT_SETTINGS.items():
-        value = pelican_settings.get(f'SOCIAL_THUMBS_{key}', default_value)
+        value = pelican_instance.settings.get(f'SOCIAL_THUMBS_{key}', default_value)
         PLUGIN_SETTINGS[key] = value
 
     missing_settings = [
@@ -39,7 +39,7 @@ def populate_plugin_settings(pelican_settings):
 
     PLUGIN_SETTINGS['configured'] = True
 
-    content_path = Path(pelican_settings.get('PATH'))
+    content_path = Path(pelican_instance.settings.get('PATH'))
     PLUGIN_SETTINGS['PATH'] = content_path / PLUGIN_SETTINGS['PATH']
 
     try:

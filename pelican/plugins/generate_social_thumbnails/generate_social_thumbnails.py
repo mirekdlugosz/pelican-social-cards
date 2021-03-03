@@ -15,8 +15,8 @@ from pelican.generators import ArticlesGenerator, StaticGenerator
 from PIL import Image, ImageDraw, ImageFont
 from smartypants import smartypants
 
-from .settings import populate_plugin_settings
 from .settings import PLUGIN_SETTINGS
+from .settings import populate_plugin_settings
 
 
 logger = logging.getLogger(__name__)
@@ -185,11 +185,7 @@ def attach_metadata(finished_generators):
         setattr(article, PLUGIN_SETTINGS['KEY_NAME'], value)
 
 
-def populate_settings(pelican_instance):
-    populate_plugin_settings(pelican_instance.settings)
-
-
 def register():
-    signals.initialized.connect(populate_settings)
+    signals.initialized.connect(populate_plugin_settings)
     signals.article_generator_finalized.connect(generate_thumbnails)
     signals.all_generators_finalized.connect(attach_metadata)
