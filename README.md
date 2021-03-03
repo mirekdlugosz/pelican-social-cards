@@ -1,3 +1,11 @@
-# Generate social media thumbnails: A Plugin for Pelican
+# Generate social media cards: A Plugin for Pelican
 
-Plugin to generate social media thumbnails with post title embedded
+Plugin to generate social media cards with post title embedded
+
+# Installation
+
+# Initial configuration
+
+# Configuration options
+
+# Contributing

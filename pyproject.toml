@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "generate-social-thumbnails"
+name = "pelican-social-cards"
 version = "0.0.1"
-description = "Plugin to generate social media thumbnails with post title embedded"
+description = "Plugin to generate social media cards with post title embedded"
 authors = ["Mirek Długosz"]
 license = "AGPL-3.0"
 readme = "README.md"
@@ -25,6 +25,7 @@ classifiers = [
 python = "^3.6"
 pelican = "^4.5"
 markdown = {version = "^3.2.2", optional = true}
+pillow = "*"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^19.10b0", allow-prereleases = true}

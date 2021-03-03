@@ -1,8 +1,8 @@
 '''
-generate_social_thumbnails
+pelican.plugins.social_cards
 ===================================
 
-Plugin to generate social media thumbnails with post title embedded
+Plugin to generate social media cards with post title embedded
 '''
 
 import html
