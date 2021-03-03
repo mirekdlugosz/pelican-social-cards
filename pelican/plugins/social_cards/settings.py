@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 
-
 logger = logging.getLogger(__name__)
 
 PLUGIN_SETTINGS = {}
@@ -16,12 +15,12 @@ DEFAULT_SETTINGS = {
     "configured": False,
 }
 
-MANDATORY_SETTINGS = ['TEMPLATE']
+MANDATORY_SETTINGS = ["TEMPLATE"]
 
 
 def populate_plugin_settings(pelican_instance):
     for key, default_value in DEFAULT_SETTINGS.items():
-        value = pelican_instance.settings.get(f'SOCIAL_CARDS_{key}', default_value)
+        value = pelican_instance.settings.get(f"SOCIAL_CARDS_{key}", default_value)
         PLUGIN_SETTINGS[key] = value
 
     missing_settings = [
@@ -37,13 +36,13 @@ def populate_plugin_settings(pelican_instance):
         )
         return
 
-    PLUGIN_SETTINGS['configured'] = True
+    PLUGIN_SETTINGS["configured"] = True
 
-    content_path = Path(pelican_instance.settings.get('PATH'))
-    PLUGIN_SETTINGS['PATH'] = content_path / PLUGIN_SETTINGS['PATH']
+    content_path = Path(pelican_instance.settings.get("PATH"))
+    PLUGIN_SETTINGS["PATH"] = content_path / PLUGIN_SETTINGS["PATH"]
 
     try:
-        PLUGIN_SETTINGS['FONT_SIZE'] = int(PLUGIN_SETTINGS['FONT_SIZE'])
+        PLUGIN_SETTINGS["FONT_SIZE"] = int(PLUGIN_SETTINGS["FONT_SIZE"])
     except ValueError:
         logger.error("SOCIAL_CARDS_FONT_SIZE must be a number")
 

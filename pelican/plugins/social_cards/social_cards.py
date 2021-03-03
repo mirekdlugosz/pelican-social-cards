@@ -1,23 +1,22 @@
-'''
+"""
 pelican.plugins.social_cards
 ===================================
 
 Plugin to generate social media cards with post title embedded
-'''
+"""
 
 import html
 import logging
 from pathlib import Path
 import textwrap
 
-from pelican import signals
-from pelican.generators import ArticlesGenerator, StaticGenerator
 from PIL import Image, ImageDraw, ImageFont
+from pelican.generators import ArticlesGenerator, StaticGenerator
 from smartypants import smartypants
 
-from .settings import PLUGIN_SETTINGS
-from .settings import populate_plugin_settings
+from pelican import signals
 
+from .settings import PLUGIN_SETTINGS, populate_plugin_settings
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +55,8 @@ class TextBox:
         for line in self._text:
             font_width, font_height = self._font.getsize(line)
             self.line_dimensions[line] = {
-                'width': font_width,
-                'height': font_height,
+                "width": font_width,
+                "height": font_height,
             }
             max_width = max(font_width, max_width)
             max_height = max(font_height, max_height)
@@ -68,29 +67,31 @@ class TextBox:
 
 
 def is_plugin_configured():
-    return PLUGIN_SETTINGS.get('configured', False)
+    return PLUGIN_SETTINGS.get("configured", False)
 
 
 def should_skip_object(content_object):
-    return hasattr(content_object, PLUGIN_SETTINGS['KEY_NAME'])
+    return hasattr(content_object, PLUGIN_SETTINGS["KEY_NAME"])
 
 
 def get_article_title(article):
     metadata_title = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_text", None)
     if metadata_title:
-        return metadata_title.split('\\n')
+        return metadata_title.split("\\n")
 
     # FIXME: rewrite this part, don't re-read file
-    if not article.settings.get('TYPOGRIFY'):
-        title = article.metadata.get('title')
+    if not article.settings.get("TYPOGRIFY"):
+        title = article.metadata.get("title")
     else:
         with open(article.source_path, encoding="UTF-8") as fh:
             for line in fh:
                 if line.lower().startswith("title:"):
-                    _, title = line.split(':', 1)
+                    _, title = line.split(":", 1)
                     break
     title = html.unescape(smartypants(title.strip()))
-    title = textwrap.wrap(title, width=30)  # FIXME: we need smarter way, that would use rendered font width
+    title = textwrap.wrap(
+        title, width=30
+    )  # FIXME: we need smarter way, that would use rendered font width
     return title
 
 
@@ -98,13 +99,13 @@ def create_paths_map(staticfiles):
     return {
         static_file.source_path: static_file.save_as
         for static_file in staticfiles
-        if Path(static_file.source_path).is_relative_to(PLUGIN_SETTINGS['PATH'])
+        if Path(static_file.source_path).is_relative_to(PLUGIN_SETTINGS["PATH"])
     }
 
 
 def generate_thumbnail_image(template, text, output_path, context):
-    font = context['image_font']
-    font_fill = context['FONT_FILL']
+    font = context["image_font"]
+    font_fill = context["FONT_FILL"]
 
     draw = ImageDraw.Draw(template)
     text_box = TextBox(text, font)
@@ -114,7 +115,9 @@ def generate_thumbnail_image(template, text, output_path, context):
 
     current_y = ((CANVAS_HEIGHT - text_box.height) // 2) + CANVAS_TOP_MARGIN
     for line in text:
-        current_x = ((CANVAS_WIDTH - text_box.line_dimensions[line]['width']) // 2) + CANVAS_HORIZONTAL_MARGIN
+        current_x = (
+            (CANVAS_WIDTH - text_box.line_dimensions[line]["width"]) // 2
+        ) + CANVAS_HORIZONTAL_MARGIN
         if current_x < 0:
             logger.error(f"calculated negative x margin for '{line}', resetting to 0")
             current_x = 0
@@ -126,17 +129,25 @@ def generate_thumbnail_image(template, text, output_path, context):
 def generate_thumbnail_for_object(content_object, context):
     article_title = get_article_title(content_object)
 
-    thumbnail_stem = content_object.save_as.replace('/index.html', '').replace('/', '-').strip('-')
+    thumbnail_stem = (
+        content_object.save_as.replace("/index.html", "").replace("/", "-").strip("-")
+    )
     thumbnail_name = f"{thumbnail_stem}.png"
-    thumbnail_path = context['PATH'] / thumbnail_name
+    thumbnail_path = context["PATH"] / thumbnail_name
 
-    setattr(content_object, f"{PLUGIN_SETTINGS['KEY_NAME']}_source", thumbnail_path.as_posix())
+    setattr(
+        content_object,
+        f"{PLUGIN_SETTINGS['KEY_NAME']}_source",
+        thumbnail_path.as_posix(),
+    )
 
-    if thumbnail_path.exists():  # FIXME: we might need a way to force overwriting anyway
+    if (
+        thumbnail_path.exists()
+    ):  # FIXME: we might need a way to force overwriting anyway
         logger.debug(f"Refusing to overwrite existing {thumbnail_path}")
         return
 
-    template = context['image_template'].copy()
+    template = context["image_template"].copy()
 
     generate_thumbnail_image(template, article_title, thumbnail_path, context)
 
@@ -145,15 +156,14 @@ def generate_thumbnails(article_generator):
     if not is_plugin_configured():
         return
 
-    PLUGIN_SETTINGS['PATH'].mkdir(exist_ok=True)
+    PLUGIN_SETTINGS["PATH"].mkdir(exist_ok=True)
 
-    template = Image.open(PLUGIN_SETTINGS['TEMPLATE'])
-    image_font = ImageFont.truetype(PLUGIN_SETTINGS['FONT_FILENAME'], size=PLUGIN_SETTINGS['FONT_SIZE'])
+    template = Image.open(PLUGIN_SETTINGS["TEMPLATE"])
+    image_font = ImageFont.truetype(
+        PLUGIN_SETTINGS["FONT_FILENAME"], size=PLUGIN_SETTINGS["FONT_SIZE"]
+    )
 
-    additional_context = {
-        'image_template': template,
-        'image_font': image_font
-    }
+    additional_context = {"image_template": template, "image_font": image_font}
 
     context = {**PLUGIN_SETTINGS, **additional_context}
 
@@ -187,7 +197,7 @@ def attach_metadata(finished_generators):
         # FIXME: appending SITEURL should be configurable - some themes add that on their own, some do not
         # something like THUMB_URL = '{siteurl}/{value}', with these two keys being recognized
         # value = f"{PLUGIN_SETTINGS['SITEURL']}/{value}"
-        setattr(article, PLUGIN_SETTINGS['KEY_NAME'], value)
+        setattr(article, PLUGIN_SETTINGS["KEY_NAME"], value)
 
 
 def register():
