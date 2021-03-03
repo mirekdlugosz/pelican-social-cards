@@ -76,7 +76,11 @@ def should_skip_object(content_object):
 
 
 def get_article_title(article):
-    # FIXME: if user set "some" kind of metadata field, just use that - possibly after split
+    metadata_title = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_text", None)
+    if metadata_title:
+        return metadata_title.split('\\n')
+
+    # FIXME: rewrite this part, don't re-read file
     if not article.settings.get('TYPOGRIFY'):
         title = article.metadata.get('title')
     else:
@@ -85,7 +89,9 @@ def get_article_title(article):
                 if line.lower().startswith("title:"):
                     _, title = line.split(':', 1)
                     break
-    return html.unescape(smartypants(title.strip()))
+    title = html.unescape(smartypants(title.strip()))
+    title = textwrap.wrap(title, width=30)  # FIXME: we need smarter way, that would use rendered font width
+    return title
 
 
 def create_paths_map(staticfiles):
@@ -119,7 +125,6 @@ def generate_thumbnail_image(template, text, output_path, context):
 
 def generate_thumbnail_for_object(content_object, context):
     article_title = get_article_title(content_object)
-    wrapped_title = textwrap.wrap(article_title, width=30)  # FIXME: we need smarter way, that would use rendered font width
 
     thumbnail_stem = content_object.save_as.replace('/index.html', '').replace('/', '-').strip('-')
     thumbnail_name = f"{thumbnail_stem}.png"
@@ -133,7 +138,7 @@ def generate_thumbnail_for_object(content_object, context):
 
     template = context['image_template'].copy()
 
-    generate_thumbnail_image(template, wrapped_title, thumbnail_path, context)
+    generate_thumbnail_image(template, article_title, thumbnail_path, context)
 
 
 def generate_thumbnails(article_generator):
