@@ -71,6 +71,10 @@ def is_plugin_configured():
     return PLUGIN_SETTINGS.get('configured', False)
 
 
+def should_skip_object(content_object):
+    return hasattr(content_object, PLUGIN_SETTINGS['KEY_NAME'])
+
+
 def get_article_title(article):
     # FIXME: if user set "some" kind of metadata field, just use that - possibly after split
     if not article.settings.get('TYPOGRIFY'):
@@ -114,7 +118,6 @@ def generate_thumbnail_image(template, text, output_path, context):
 
 
 def generate_thumbnail_for_object(content_object, context):
-    # FIXME: drop early if object already has og_image set
     article_title = get_article_title(content_object)
     wrapped_title = textwrap.wrap(article_title, width=30)  # FIXME: we need smarter way, that would use rendered font width
 
@@ -122,8 +125,7 @@ def generate_thumbnail_for_object(content_object, context):
     thumbnail_name = f"{thumbnail_stem}.png"
     thumbnail_path = context['PATH'] / thumbnail_name
 
-    # FIXME: I *think* that should be property of object, not key in metadata
-    content_object.metadata["og_image_source"] = thumbnail_path.as_posix()
+    setattr(content_object, f"{PLUGIN_SETTINGS['KEY_NAME']}_source", thumbnail_path.as_posix())
 
     if thumbnail_path.exists():  # FIXME: we might need a way to force overwriting anyway
         logger.debug(f"Refusing to overwrite existing {thumbnail_path}")
@@ -151,6 +153,8 @@ def generate_thumbnails(article_generator):
     context = {**PLUGIN_SETTINGS, **additional_context}
 
     for article in article_generator.articles:
+        if should_skip_object(article):
+            continue
         generate_thumbnail_for_object(article, context)
 
 
@@ -168,16 +172,17 @@ def attach_metadata(finished_generators):
 
     # FIXME: drafts, translations, pages...
     for article in articles_generator.articles:
-        # FIXME: don't bother if article already has og_image set
-        key = article.metadata.get("og_image_source")
+        if should_skip_object(article):
+            continue
+
+        key = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_source")
         value = thumb_paths_map.get(key)
         if not key or not value:
             continue
         # FIXME: appending SITEURL should be configurable - some themes add that on their own, some do not
         # something like THUMB_URL = '{siteurl}/{value}', with these two keys being recognized
         # value = f"{PLUGIN_SETTINGS['SITEURL']}/{value}"
-        # FIXME: key should be configurable - most themes use `og_image`, but some use `featured_image`, `image` or `header_cover`
-        article.metadata["og_image"] = value
+        setattr(article, PLUGIN_SETTINGS['KEY_NAME'], value)
 
 
 def populate_settings(pelican_instance):

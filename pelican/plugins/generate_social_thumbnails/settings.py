@@ -12,7 +12,8 @@ DEFAULT_SETTINGS = {
     "FONT_FILENAME": "Arial.ttf",
     "FONT_SIZE": 70,
     "FONT_FILL": "#000000",
-    'configured': False,
+    "KEY_NAME": "og_image",
+    "configured": False,
 }
 
 MANDATORY_SETTINGS = ['TEMPLATE']
