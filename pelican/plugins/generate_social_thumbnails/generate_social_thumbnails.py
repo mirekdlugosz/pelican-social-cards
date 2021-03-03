@@ -15,7 +15,8 @@ from pelican.generators import ArticlesGenerator, StaticGenerator
 from PIL import Image, ImageDraw, ImageFont
 from smartypants import smartypants
 
-from .settings import get_plugin_settings
+from .settings import populate_plugin_settings
+from .settings import PLUGIN_SETTINGS
 
 
 logger = logging.getLogger(__name__)
@@ -67,8 +68,7 @@ class TextBox:
 
 
 def is_plugin_configured():
-    plugin_settings = get_plugin_settings()
-    return plugin_settings.get('configured', False)
+    return PLUGIN_SETTINGS.get('configured', False)
 
 
 def get_article_title(article):
@@ -85,12 +85,10 @@ def get_article_title(article):
 
 
 def create_paths_map(staticfiles):
-    plugin_settings = get_plugin_settings()
-
     return {
         static_file.source_path: static_file.save_as
         for static_file in staticfiles
-        if Path(static_file.source_path).is_relative_to(plugin_settings['PATH'])
+        if Path(static_file.source_path).is_relative_to(PLUGIN_SETTINGS['PATH'])
     }
 
 
@@ -140,19 +138,17 @@ def generate_thumbnails(article_generator):
     if not is_plugin_configured():
         return
 
-    plugin_settings = get_plugin_settings()
+    PLUGIN_SETTINGS['PATH'].mkdir(exist_ok=True)
 
-    plugin_settings['PATH'].mkdir(exist_ok=True)
-
-    template = Image.open(plugin_settings['TEMPLATE'])
-    image_font = ImageFont.truetype("DejaVuSans.ttf", size=plugin_settings['FONT_SIZE'])
+    template = Image.open(PLUGIN_SETTINGS['TEMPLATE'])
+    image_font = ImageFont.truetype(PLUGIN_SETTINGS['FONT_FILENAME'], size=PLUGIN_SETTINGS['FONT_SIZE'])
 
     additional_context = {
         'image_template': template,
         'image_font': image_font
     }
 
-    context = {**plugin_settings, **additional_context}
+    context = {**PLUGIN_SETTINGS, **additional_context}
 
     for article in article_generator.articles:
         generate_thumbnail_for_object(article, context)
@@ -161,8 +157,6 @@ def generate_thumbnails(article_generator):
 def attach_metadata(finished_generators):
     if not is_plugin_configured():
         return
-
-    plugin_settings = get_plugin_settings()
 
     for generator in finished_generators:
         if isinstance(generator, ArticlesGenerator):
@@ -181,13 +175,13 @@ def attach_metadata(finished_generators):
             continue
         # FIXME: appending SITEURL should be configurable - some themes add that on their own, some do not
         # something like THUMB_URL = '{siteurl}/{value}', with these two keys being recognized
-        value = f"{plugin_settings['SITEURL']}/{value}"
+        # value = f"{PLUGIN_SETTINGS['SITEURL']}/{value}"
         # FIXME: key should be configurable - most themes use `og_image`, but some use `featured_image`, `image` or `header_cover`
         article.metadata["og_image"] = value
 
 
 def populate_settings(pelican_instance):
-    get_plugin_settings(pelican_instance.settings)
+    populate_plugin_settings(pelican_instance.settings)
 
 
 def register():
