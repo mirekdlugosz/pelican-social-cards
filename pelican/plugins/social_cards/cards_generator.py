@@ -74,13 +74,15 @@ class CardsGenerator:
         return title
 
     def _get_card_path(self, content_object):
-        card_stem = (
-            content_object.save_as.replace("/index.html", "")
-            .replace("/", "-")
-            .strip("-")
-        )
-        if card_stem.endswith(".html"):
-            card_stem = card_stem[:-5]
+        card_stem = content_object.save_as.replace("/", "-")
+
+        bad_suffixes = ("-index.html", ".html")
+        for bad_suffix in bad_suffixes:
+            if card_stem.endswith(bad_suffix):
+                trim = len(bad_suffix) * -1
+                card_stem = card_stem[:trim]
+        card_stem = card_stem.strip("-")
+
         card_name = f"{card_stem}.png"
         card_path = PLUGIN_SETTINGS["PATH"] / card_name
         return card_path

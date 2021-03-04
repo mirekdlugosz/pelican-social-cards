@@ -44,14 +44,6 @@ def generator_content(generator):
         yield content_object
 
 
-def create_paths_map(staticfiles):
-    return {
-        static_file.source_path: static_file.save_as
-        for static_file in staticfiles
-        if Path(static_file.source_path).is_relative_to(PLUGIN_SETTINGS["PATH"])
-    }
-
-
 def generate_cards(generator):
     if not is_plugin_configured():
         return
@@ -78,7 +70,11 @@ def attach_metadata(finished_generators):
         if isinstance(generator, StaticGenerator):
             static_generator = generator
 
-    thumb_paths_map = create_paths_map(static_generator.staticfiles)
+    card_paths_map = {
+        static_file.source_path: static_file.save_as
+        for static_file in static_generator.staticfiles
+        if Path(static_file.source_path).is_relative_to(PLUGIN_SETTINGS["PATH"])
+    }
 
     for content_object in itertools.chain(
         generator_content(articles_generator), generator_content(pages_generator)
@@ -86,14 +82,16 @@ def attach_metadata(finished_generators):
         if should_skip_object(content_object):
             continue
 
-        key = getattr(content_object, f"{PLUGIN_SETTINGS['KEY_NAME']}_source")
-        value = thumb_paths_map.get(key)
-        if not key or not value:
+        key = getattr(content_object, f"{PLUGIN_SETTINGS['KEY_NAME']}_source", None)
+        og_image_attr = card_paths_map.get(key)
+        if not key or not og_image_attr:
             continue
-        # FIXME: appending SITEURL should be configurable - some themes add that on their own, some do not
-        # something like THUMB_URL = '{siteurl}/{value}', with these two keys being recognized
-        # value = f"{PLUGIN_SETTINGS['SITEURL']}/{value}"
-        setattr(content_object, PLUGIN_SETTINGS["KEY_NAME"], value)
+
+        if PLUGIN_SETTINGS["INCLUDE_SITEURL"]:
+            siteurl = articles_generator.settings["SITEURL"]
+            og_image_attr = f"{siteurl}/{og_image_attr}"
+
+        setattr(content_object, PLUGIN_SETTINGS["KEY_NAME"], og_image_attr)
 
 
 def register():
