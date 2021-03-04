@@ -81,7 +81,7 @@ def attach_metadata(finished_generators):
     thumb_paths_map = create_paths_map(static_generator.staticfiles)
 
     for content_object in itertools.chain(
-        *(generator_content(articles_generator), generator_content(pages_generator))
+        generator_content(articles_generator), generator_content(pages_generator)
     ):
         if should_skip_object(content_object):
             continue
