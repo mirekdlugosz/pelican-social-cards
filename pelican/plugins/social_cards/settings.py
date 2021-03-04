@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import textwrap
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ DEFAULT_SETTINGS = {
     "CANVAS_LEFT": 40,
     "CANVAS_TOP": 248,
     "LEADING": 15,
+    "WRAPPING_FUNCTION": textwrap.wrap,
     "WORDS_PER_LINE": 30,
     "KEY_NAME": "og_image",
     "configured": False,

@@ -1,6 +1,5 @@
 import html
 import logging
-import textwrap
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -55,10 +54,12 @@ class CardsGenerator:
         if not self._template:
             type(self)._template = Image.open(PLUGIN_SETTINGS["TEMPLATE"])
 
-    def _get_article_title(article):
+    def _get_article_title(self, article):
         metadata_title = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_text", None)
         if metadata_title:
             return metadata_title.split("\\n")
+
+        wrapping_function = PLUGIN_SETTINGS["WRAPPING_FUNCTION"]
 
         title = article.metadata.get("title", "")
         if article.settings.get("TYPOGRIFY"):
@@ -67,9 +68,9 @@ class CardsGenerator:
             title = title.replace("</span>", "")
             title = html.unescape(title)
 
-        # FIXME: users should be able to provide their own function, possibly taking
-        # both arguments
-        title = textwrap.wrap(title.strip(), width=PLUGIN_SETTINGS["WORDS_PER_LINE"])
+        title = wrapping_function(
+            title.strip(), width=PLUGIN_SETTINGS["WORDS_PER_LINE"]
+        )
         return title
 
     def _get_card_path(self, content_object):
