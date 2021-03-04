@@ -3,31 +3,12 @@ import logging
 import textwrap
 
 from PIL import Image, ImageDraw, ImageFont
-from smartypants import smartypants
 
 from .settings import PLUGIN_SETTINGS
 
 logger = logging.getLogger(__name__)
 
-
-def get_article_title(article):
-    metadata_title = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_text", None)
-    if metadata_title:
-        return metadata_title.split("\\n")
-
-    # FIXME: rewrite this part, don't re-read file
-    if not article.settings.get("TYPOGRIFY"):
-        title = article.metadata.get("title")
-    else:
-        with open(article.source_path, encoding="UTF-8") as fh:
-            for line in fh:
-                if line.lower().startswith("title:"):
-                    _, title = line.split(":", 1)
-                    break
-    title = html.unescape(smartypants(title.strip()))
-    # FIXME: width should be in settings
-    title = textwrap.wrap(title, width=PLUGIN_SETTINGS["WORDS_PER_LINE"])
-    return title
+TYPOGRIFY_SPAN_CLASSES = ("amp", "caps", "dquo", "quo")
 
 
 class TextBox:
@@ -73,6 +54,23 @@ class CardsGenerator:
 
         if not self._template:
             type(self)._template = Image.open(PLUGIN_SETTINGS["TEMPLATE"])
+
+    def _get_article_title(article):
+        metadata_title = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_text", None)
+        if metadata_title:
+            return metadata_title.split("\\n")
+
+        title = article.metadata.get("title", "")
+        if article.settings.get("TYPOGRIFY"):
+            for class_name in TYPOGRIFY_SPAN_CLASSES:
+                title = title.replace(f'<span class="{class_name}">', "")
+            title = title.replace("</span>", "")
+            title = html.unescape(title)
+
+        # FIXME: users should be able to provide their own function, possibly taking
+        # both arguments
+        title = textwrap.wrap(title.strip(), width=PLUGIN_SETTINGS["WORDS_PER_LINE"])
+        return title
 
     def _get_card_path(self, content_object):
         card_stem = (
@@ -121,7 +119,7 @@ class CardsGenerator:
             logger.debug(f"Refusing to overwrite existing {target_path}")
             return
 
-        article_title = get_article_title(content_object)
+        article_title = self._get_article_title(content_object)
 
         img = self._generate_card_image(article_title)
         img.save(target_path)
