@@ -21,6 +21,8 @@ DEFAULT_SETTINGS = {
     "WRAPPING_FUNCTION": textwrap.wrap,
     "CHARS_PER_LINE": 30,
     "KEY_NAME": "og_image",
+    "INCLUDE_DRAFTS": False,
+    "INCLUDE_HIDDEN": False,
     "configured": False,
 }
 

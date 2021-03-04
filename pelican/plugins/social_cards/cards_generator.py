@@ -79,6 +79,8 @@ class CardsGenerator:
             .replace("/", "-")
             .strip("-")
         )
+        if card_stem.endswith(".html"):
+            card_stem = card_stem[:-5]
         card_name = f"{card_stem}.png"
         card_path = PLUGIN_SETTINGS["PATH"] / card_name
         return card_path
