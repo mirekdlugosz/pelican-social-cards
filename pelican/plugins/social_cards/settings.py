@@ -19,7 +19,7 @@ DEFAULT_SETTINGS = {
     "CANVAS_TOP": 248,
     "LEADING": 15,
     "WRAPPING_FUNCTION": textwrap.wrap,
-    "WORDS_PER_LINE": 30,
+    "CHARS_PER_LINE": 30,
     "KEY_NAME": "og_image",
     "configured": False,
 }

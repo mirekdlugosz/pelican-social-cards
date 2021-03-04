@@ -69,7 +69,7 @@ class CardsGenerator:
             title = html.unescape(title)
 
         title = wrapping_function(
-            title.strip(), width=PLUGIN_SETTINGS["WORDS_PER_LINE"]
+            title.strip(), width=PLUGIN_SETTINGS["CHARS_PER_LINE"]
         )
         return title
 
