@@ -11,6 +11,13 @@ DEFAULT_SETTINGS = {
     "FONT_FILENAME": "Arial.ttf",
     "FONT_SIZE": 70,
     "FONT_FILL": "#000000",
+    # FIXME: create saner defaults
+    "CANVAS_HEIGHT": 382,
+    "CANVAS_WIDTH": 1120,
+    "CANVAS_LEFT": 40,
+    "CANVAS_TOP": 248,
+    "LEADING": 15,
+    "WORDS_PER_LINE": 30,
     "KEY_NAME": "og_image",
     "configured": False,
 }
@@ -41,9 +48,13 @@ def populate_plugin_settings(pelican_instance):
     content_path = Path(pelican_instance.settings.get("PATH"))
     PLUGIN_SETTINGS["PATH"] = content_path / PLUGIN_SETTINGS["PATH"]
 
-    try:
-        PLUGIN_SETTINGS["FONT_SIZE"] = int(PLUGIN_SETTINGS["FONT_SIZE"])
-    except ValueError:
-        logger.error("SOCIAL_CARDS_FONT_SIZE must be a number")
+    int_settings = [
+        key for key, value in DEFAULT_SETTINGS.items() if isinstance(value, int)
+    ]
+    for key in int_settings:
+        try:
+            PLUGIN_SETTINGS[key] = int(PLUGIN_SETTINGS[key])
+        except ValueError:
+            logger.error(f"SOCIAL_CARDS_{key} must be a number")
 
     logger.debug(f"pelican.plugins.social_cards settings: {PLUGIN_SETTINGS}")

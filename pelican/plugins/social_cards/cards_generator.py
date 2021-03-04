@@ -9,21 +9,6 @@ from .settings import PLUGIN_SETTINGS
 
 logger = logging.getLogger(__name__)
 
-# FIXME: constants should be settings
-
-LEADING = 15
-
-# FIXME: better API:
-# - CANVAS_WIDTH - preferred canvas width
-# - CANVAS_HEIGHT - prefeered canvas height
-# - CANVAS_LEFT - distance from left border to canvas left border
-# - CANVAS_TOP - distance from top border to canvas top border
-
-CANVAS_HORIZONTAL_MARGIN = 40
-CANVAS_WIDTH = 1200 - CANVAS_HORIZONTAL_MARGIN * 2
-CANVAS_HEIGHT = 382
-CANVAS_TOP_MARGIN = 630 - CANVAS_HEIGHT
-
 
 def get_article_title(article):
     metadata_title = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_text", None)
@@ -41,7 +26,7 @@ def get_article_title(article):
                     break
     title = html.unescape(smartypants(title.strip()))
     # FIXME: width should be in settings
-    title = textwrap.wrap(title, width=30)
+    title = textwrap.wrap(title, width=PLUGIN_SETTINGS["WORDS_PER_LINE"])
     return title
 
 
@@ -58,6 +43,7 @@ class TextBox:
         self._compute_values()
 
     def _compute_values(self):
+        leading = PLUGIN_SETTINGS["LEADING"]
         max_width = 0
         max_height = 0
 
@@ -70,9 +56,9 @@ class TextBox:
             max_width = max(font_width, max_width)
             max_height = max(font_height, max_height)
         self.width = max_width
-        self.line_height = max_height + LEADING
+        self.line_height = max_height + leading
         self.lines = len(self._text)
-        self.height = self.line_height * self.lines - LEADING
+        self.height = self.line_height * self.lines - leading
 
 
 class CardsGenerator:
@@ -103,14 +89,18 @@ class CardsGenerator:
         draw = ImageDraw.Draw(img)
         text_box = TextBox(text, self._font)
         font_fill = PLUGIN_SETTINGS["FONT_FILL"]
+        canvas_width = PLUGIN_SETTINGS["CANVAS_WIDTH"]
+        canvas_height = PLUGIN_SETTINGS["CANVAS_HEIGHT"]
+        canvas_left = PLUGIN_SETTINGS["CANVAS_LEFT"]
+        canvas_top = PLUGIN_SETTINGS["CANVAS_TOP"]
 
         # FIXME: different vertical and horizontal alignments
         # FIXME: warning, if text_box sizes are bigger than canvas
-        current_y = ((CANVAS_HEIGHT - text_box.height) // 2) + CANVAS_TOP_MARGIN
+        current_y = ((canvas_height - text_box.height) // 2) + canvas_top
         for line in text:
             current_x = (
-                (CANVAS_WIDTH - text_box.line_dimensions[line]["width"]) // 2
-            ) + CANVAS_HORIZONTAL_MARGIN
+                (canvas_width - text_box.line_dimensions[line]["width"]) // 2
+            ) + canvas_left
             if current_x < 0:
                 logger.error(
                     f"calculated negative x margin for '{line}', resetting to 0"
