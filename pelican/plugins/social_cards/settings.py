@@ -23,6 +23,7 @@ DEFAULT_SETTINGS = {
     "INCLUDE_SITEURL": False,
     "INCLUDE_DRAFTS": False,
     "INCLUDE_HIDDEN": False,
+    "FORCE_SAVE": False,
     "configured": False,
 }
 

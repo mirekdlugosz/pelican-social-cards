@@ -119,8 +119,7 @@ class CardsGenerator:
         attr_name = f"{PLUGIN_SETTINGS['KEY_NAME']}_source"
         setattr(content_object, attr_name, target_path.as_posix())
 
-        # FIXME: we might need a way to force overwriting anyway
-        if target_path.exists():
+        if target_path.exists() and not PLUGIN_SETTINGS["FORCE_SAVE"]:
             logger.debug(f"Refusing to overwrite existing {target_path}")
             return
 
