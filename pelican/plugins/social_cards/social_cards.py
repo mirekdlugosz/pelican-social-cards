@@ -48,7 +48,7 @@ def generate_cards(generator):
     if not is_plugin_configured():
         return
 
-    PLUGIN_SETTINGS["PATH"].mkdir(exist_ok=True)
+    PLUGIN_SETTINGS["PATH"].mkdir(parents=True, exist_ok=True)
 
     cards_generator = CardsGenerator()
 
