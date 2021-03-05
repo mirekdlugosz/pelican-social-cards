@@ -8,7 +8,7 @@ PLUGIN_SETTINGS = {}
 
 DEFAULT_SETTINGS = {
     "TEMPLATE": None,
-    "PATH": "social-thumbs/",
+    "PATH": "social-cards/",
     "FONT_FILENAME": "Arial.ttf",
     "FONT_SIZE": 70,
     "FONT_FILL": "#000000",
