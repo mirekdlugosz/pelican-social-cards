@@ -16,6 +16,8 @@ DEFAULT_SETTINGS = {
     "CANVAS_WIDTH": 1200,
     "CANVAS_LEFT": 0,
     "CANVAS_TOP": 0,
+    "VERTICAL_ALIGNMENT": "center",
+    "HORIZONTAL_ALIGNMENT": "center",
     "LEADING": 15,
     "WRAPPING_FUNCTION": textwrap.wrap,
     "CHARS_PER_LINE": 30,
@@ -28,6 +30,10 @@ DEFAULT_SETTINGS = {
 }
 
 MANDATORY_SETTINGS = ["TEMPLATE"]
+VALID_ALIGNMENTS = {
+    "VERTICAL": ("top", "center", "bottom"),
+    "HORIZONTAL": ("left", "center", "right"),
+}
 
 
 def populate_plugin_settings(pelican_instance):
@@ -61,5 +67,15 @@ def populate_plugin_settings(pelican_instance):
             PLUGIN_SETTINGS[key] = int(PLUGIN_SETTINGS[key])
         except ValueError:
             logger.error(f"SOCIAL_CARDS_{key} must be a number")
+
+    for key in ("VERTICAL", "HORIZONTAL"):
+        valid_values = VALID_ALIGNMENTS.get(key)
+        if PLUGIN_SETTINGS[f"{key}_ALIGNMENT"] not in valid_values:
+            logger.error(
+                f"SOCIAL_CARDS_{key}_ALIGNMENT must be one of: "
+                f"{', '.join(valid_values)}"
+            )
+            default_value = DEFAULT_SETTINGS.get(f"{key}_ALIGNMENT")
+            PLUGIN_SETTINGS[f"{key}_ALIGNMENT"] = default_value
 
     logger.debug(f"pelican.plugins.social_cards settings: {PLUGIN_SETTINGS}")

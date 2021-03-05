@@ -18,7 +18,7 @@ class TextBox:
         self.height = 0
         self.lines = 0
         self.line_height = 0
-        self.line_dimensions = {}
+        self._line_dimensions = {}
 
         self._compute_values()
 
@@ -29,7 +29,7 @@ class TextBox:
 
         for line in self._text:
             font_width, font_height = self._font.getsize(line)
-            self.line_dimensions[line] = {
+            self._line_dimensions[line] = {
                 "width": font_width,
                 "height": font_height,
             }
@@ -39,6 +39,9 @@ class TextBox:
         self.line_height = max_height + leading
         self.lines = len(self._text)
         self.height = self.line_height * self.lines - leading
+
+    def width_of_line(self, line):
+        return self._line_dimensions.get(line, {}).get("width", 0)
 
 
 class CardsGenerator:
@@ -87,6 +90,32 @@ class CardsGenerator:
         card_path = PLUGIN_SETTINGS["PATH"] / card_name
         return card_path
 
+    def _calc_current_y(self, text_box):
+        canvas_height = PLUGIN_SETTINGS["CANVAS_HEIGHT"]
+        canvas_top = PLUGIN_SETTINGS["CANVAS_TOP"]
+        vertical_alignment = PLUGIN_SETTINGS["VERTICAL_ALIGNMENT"]
+
+        y = 0  # top
+        if vertical_alignment != "top":
+            y = canvas_height - text_box.height  # bottom
+            if vertical_alignment == "center":
+                y = y // 2
+        y += canvas_top
+        return y
+
+    def _calc_current_x(self, text_box, line):
+        canvas_width = PLUGIN_SETTINGS["CANVAS_WIDTH"]
+        canvas_left = PLUGIN_SETTINGS["CANVAS_LEFT"]
+        horizontal_alignment = PLUGIN_SETTINGS["HORIZONTAL_ALIGNMENT"]
+
+        x = 0  # left
+        if horizontal_alignment != "left":
+            x = canvas_width - text_box.width_of_line(line)  # right
+            if horizontal_alignment == "center":
+                x = x // 2
+        x += canvas_left
+        return x
+
     def _generate_card_image(self, text):
         img = self._template.copy()
         draw = ImageDraw.Draw(img)
@@ -94,21 +123,27 @@ class CardsGenerator:
         font_fill = PLUGIN_SETTINGS["FONT_FILL"]
         canvas_width = PLUGIN_SETTINGS["CANVAS_WIDTH"]
         canvas_height = PLUGIN_SETTINGS["CANVAS_HEIGHT"]
-        canvas_left = PLUGIN_SETTINGS["CANVAS_LEFT"]
-        canvas_top = PLUGIN_SETTINGS["CANVAS_TOP"]
 
-        # FIXME: different vertical and horizontal alignments
-        # FIXME: warning, if text_box sizes are bigger than canvas
-        current_y = ((canvas_height - text_box.height) // 2) + canvas_top
-        for line in text:
-            current_x = (
-                (canvas_width - text_box.line_dimensions[line]["width"]) // 2
-            ) + canvas_left
-            if current_x < 0:
-                logger.error(
-                    f"calculated negative x margin for '{line}', resetting to 0"
+        if text_box.width > canvas_width or text_box.height > canvas_height:
+            logger.warning(
+                (
+                    "pelican.plugins.social_cards: Text requires more space than "
+                    "canvas provides\n"
+                    "text dimensions: {}x{}; canvas dimensions: {}x{}\n"
+                    "offending text: {}"
+                ).format(
+                    text_box.width,
+                    text_box.height,
+                    canvas_width,
+                    canvas_height,
+                    " ".join(text),
                 )
-                current_x = 0
+            )
+
+        current_y = self._calc_current_y(text_box)
+
+        for line in text:
+            current_x = self._calc_current_x(text_box, line)
             draw.text((current_x, current_y), line, font=self._font, fill=font_fill)
             current_y += text_box.line_height
         return img
