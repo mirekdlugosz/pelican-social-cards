@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pelican-social-cards"
-version = "0.1.1"
+version = "0.2.3"
 description = "Plugin to generate social media cards with post title embedded"
 authors = ["Mirek Długosz"]
 license = "AGPL-3.0"
