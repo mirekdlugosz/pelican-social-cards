@@ -86,7 +86,7 @@ class CardsGenerator:
                 card_stem = card_stem[:trim]
         card_stem = card_stem.strip("-")
 
-        card_name = f"{card_stem}.png"
+        card_name = f"{card_stem}.{PLUGIN_SETTINGS['FORMAT_EXTENSION']}"
         card_path = PLUGIN_SETTINGS["PATH"] / card_name
         return card_path
 
