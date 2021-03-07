@@ -45,3 +45,14 @@ def test_custom_wrapping_function(article, default_settings, cards_generator):
 
     assert wrapped_text == ["Fake", "Title"]
     assert wrapped_text != [article.title]
+
+
+def test_canvas_outside_of_template_issues_warning(
+    caplog, default_settings, cards_generator
+):
+    """Issues a warning if part of text may be drawn outside of template image"""
+    PLUGIN_SETTINGS.update(CANVAS_LEFT=300, CANVAS_TOP=300)
+    cards_generator._check_canvas_position()
+    assert caplog.records
+    assert any(r for r in caplog.records if r.levelname == "WARNING")
+    assert "text may be drawn outside of image borders" in caplog.text

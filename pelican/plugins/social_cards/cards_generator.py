@@ -56,6 +56,21 @@ class CardsGenerator:
 
         if not self._template:
             type(self)._template = Image.open(PLUGIN_SETTINGS["TEMPLATE"])
+            self._check_canvas_position()
+
+    def _check_canvas_position(self):
+        template_w, template_h = self._template.size
+        canvas_w = PLUGIN_SETTINGS["CANVAS_WIDTH"] + PLUGIN_SETTINGS["CANVAS_LEFT"]
+        canvas_h = PLUGIN_SETTINGS["CANVAS_HEIGHT"] + PLUGIN_SETTINGS["CANVAS_TOP"]
+
+        if canvas_w > template_w or canvas_h > template_h:
+            logger.warning(
+                (
+                    "pelican.plugins.social_cards: Template size is {}x{}, "
+                    "bottom right corner of canvas is at ({}, {})\n"
+                    "Part of the text may be drawn outside of image borders."
+                ).format(template_w, template_h, canvas_w, canvas_h)
+            )
 
     def _get_article_title(self, article):
         metadata_title = getattr(article, f"{PLUGIN_SETTINGS['KEY_NAME']}_text", None)
@@ -149,6 +164,10 @@ class CardsGenerator:
         return img
 
     def create_for_object(self, content_object):
+        logger.debug(
+            f"pelican-social-cards: generating image for {content_object.source_path}"
+        )
+
         target_path = self._get_card_path(content_object)
 
         attr_name = f"{PLUGIN_SETTINGS['KEY_NAME']}_source"
