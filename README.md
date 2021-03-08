@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/github/workflow/status/mirekdlugosz/pelican-social-cards/build)](https://github.com/mirekdlugosz/pelican-social-cards/actions) [![PyPI Version](https://img.shields.io/pypi/v/pelican-social-cards)](https://pypi.org/project/pelican-social-cards/)
 
-This plugin generates images with your article titles embedded on them. These images can then be used as "card" metadata and appear on social media when your post is shared, making these posts more appealing visually. The final effect might look something like this:
+This plugin generates images with your article titles embedded on them. These images can then be used as "card" metadata and appear on social media when your post is shared, making these posts more visually appealing. The final effect might look something like this:
 
 | ![sample image](./sample-card.png) |
 |---|
@@ -87,10 +87,10 @@ The area of image where text should be drawn is called "canvas". Plugin does not
 
 `SOCIAL_CARDS_VERTICAL_ALIGNMENT` is alignment of text within canvas. Valid values are `"top"`, `"center"` and `"bottom"`. See below for visual representation of various settings.
 
-| ![Horizontal alignment: left; Vertical alignment: top](tests/img/text_pos_left_top.png) | ![Horizontal alignment: left; Vertical alignment: center](tests/img/text_pos_left_center.png) | ![Horizontal alignment: left; Vertical alignment: bottom](tests/img/text_pos_left_bottom.png) |
+| ![Horizontal alignment: left; Vertical alignment: top](tests/img/text_pos_left_top.png) | ![Horizontal alignment: center; Vertical alignment: top](tests/img/text_pos_center_top.png) | ![Horizontal alignment: right; Vertical alignment: top](tests/img/text_pos_right_top.png) |
 |--------------|--------------|--------------|
-| ![Horizontal alignment: center; Vertical alignment: top](tests/img/text_pos_center_top.png) | ![Horizontal alignment: center; Vertical alignment: center](tests/img/text_pos_center_center.png) | ![Horizontal alignment: center; Vertical alignment: bottom](tests/img/text_pos_center_bottom.png) |
-| ![Horizontal alignment: right; Vertical alignment: top](tests/img/text_pos_right_top.png) | ![Horizontal alignment: right; Vertical alignment: center](tests/img/text_pos_right_center.png) | ![Horizontal alignment: right; Vertical alignment: bottom](tests/img/text_pos_right_bottom.png) |
+| ![Horizontal alignment: left; Vertical alignment: center](tests/img/text_pos_left_center.png) | ![Horizontal alignment: center; Vertical alignment: center](tests/img/text_pos_center_center.png) | ![Horizontal alignment: right; Vertical alignment: center](tests/img/text_pos_right_center.png) |
+| ![Horizontal alignment: left; Vertical alignment: bottom](tests/img/text_pos_left_bottom.png) | ![Horizontal alignment: center; Vertical alignment: bottom](tests/img/text_pos_center_bottom.png) | ![Horizontal alignment: right; Vertical alignment: bottom](tests/img/text_pos_right_bottom.png) |
 
 ## Controlling text on the card
 
