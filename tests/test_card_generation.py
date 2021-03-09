@@ -35,3 +35,26 @@ def test_canvas_positioning(default_settings, cards_generator):
     img = cards_generator._generate_card_image(text)
 
     assert_image_equal_tofile(img, reference_file)
+
+
+def test_text_outline(default_settings, cards_generator):
+    """Check if text supports outline"""
+    text = ["Text outline test", "text with outline"]
+    PLUGIN_SETTINGS["FONT_OUTLINE_SIZE"] = 3
+    PLUGIN_SETTINGS["FONT_OUTLINE_FILL"] = "#28c911"
+    reference_file = "tests/img/text_outline.png"
+
+    img = cards_generator._generate_card_image(text)
+
+    assert_image_equal_tofile(img, reference_file)
+
+
+def test_text_outline_color_no_size(default_settings, cards_generator):
+    """Check if text doesn't have outline when only color was given"""
+    text = ["Text outline test", "text without outline"]
+    PLUGIN_SETTINGS["FONT_OUTLINE_FILL"] = "#28c911"
+    reference_file = "tests/img/text_without_online.png"
+
+    img = cards_generator._generate_card_image(text)
+
+    assert_image_equal_tofile(img, reference_file)

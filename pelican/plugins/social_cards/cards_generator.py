@@ -138,6 +138,8 @@ class CardsGenerator:
         font_fill = PLUGIN_SETTINGS["FONT_FILL"]
         canvas_width = PLUGIN_SETTINGS["CANVAS_WIDTH"]
         canvas_height = PLUGIN_SETTINGS["CANVAS_HEIGHT"]
+        outline_size = PLUGIN_SETTINGS["FONT_OUTLINE_SIZE"]
+        outline_fill = PLUGIN_SETTINGS["FONT_OUTLINE_FILL"]
 
         if text_box.width > canvas_width or text_box.height > canvas_height:
             logger.warning(
@@ -159,7 +161,14 @@ class CardsGenerator:
 
         for line in text:
             current_x = self._calc_current_x(text_box, line)
-            draw.text((current_x, current_y), line, font=self._font, fill=font_fill)
+            draw.text(
+                (current_x, current_y),
+                line,
+                font=self._font,
+                fill=font_fill,
+                stroke_width=outline_size,
+                stroke_fill=outline_fill,
+            )
             current_y += text_box.line_height
         return img
 

@@ -54,6 +54,8 @@ def default_settings():
             "FONT_FILENAME": "tests/fonts/LiberationMono-Regular.ttf",
             "FONT_SIZE": 20,
             "FONT_FILL": "#000000",
+            "FONT_OUTLINE_SIZE": 0,
+            "FONT_OUTLINE_FILL": "#000000",
             "CANVAS_WIDTH": 300,
             "CANVAS_HEIGHT": 300,
             "CANVAS_LEFT": 0,

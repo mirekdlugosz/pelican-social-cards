@@ -30,6 +30,8 @@ Do note that plugin **only** generates images - you must reference them in your 
     * [`SOCIAL_CARDS_FONT_FILENAME`](#social_cards_font_filename)
     * [`SOCIAL_CARDS_FONT_SIZE`](#social_cards_font_size)
     * [`SOCIAL_CARDS_FONT_FILL`](#social_cards_font_fill)
+    * [`SOCIAL_CARDS_FONT_OUTLINE_SIZE`](#social_cards_font_outline_size)
+    * [`SOCIAL_CARDS_FONT_OUTLINE_FILL`](#social_cards_font_outline_fill)
     * [`SOCIAL_CARDS_CANVAS_WIDTH`](#social_cards_canvas_width)
     * [`SOCIAL_CARDS_CANVAS_HEIGHT`](#social_cards_canvas_height)
     * [`SOCIAL_CARDS_CANVAS_LEFT`](#social_cards_canvas_left)
@@ -198,6 +200,22 @@ Size of font, in pixels.
 ## `SOCIAL_CARDS_FONT_FILL`
 
 Color of text. Value of this setting is passed verbatim to [`PIL.ImageColor`](https://pillow.readthedocs.io/en/stable/reference/ImageColor.html). Pillow supports multiple color formats, but `#rrggbb` and [CSS human-friendly name](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#color_keywords) are probably easiest to use.
+
+*Default value*: `"#000000"`
+
+## `SOCIAL_CARDS_FONT_OUTLINE_SIZE`
+
+Width of font outline, in pixels. This effect as also known as "text stroke", and results in text being surrounded by a line of potentially different color (see [example image](tests/img/text_outline.png)). Value of this setting is passed verbatim to Pillow.
+
+Value of `0` results in no outline being drawn.
+
+*Default value*: `0`
+
+## `SOCIAL_CARDS_FONT_OUTLINE_FILL`
+
+Color of font outline. Value of this setting is passed verbatim to [`PIL.ImageColor`](https://pillow.readthedocs.io/en/stable/reference/ImageColor.html). Pillow supports multiple color formats, but `#rrggbb` and [CSS human-friendly name](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#color_keywords) are probably easiest to use.
+
+This setting only takes effect when `SOCIAL_CARDS_FONT_OUTLINE_SIZE` is set to a positive integer.
 
 *Default value*: `"#000000"`
 
