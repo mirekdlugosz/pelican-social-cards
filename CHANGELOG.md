@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+0.3.2 - 2021-03-09
+------------------
+
+New feature: optional text outline (text stroke)
+
 0.3.1 - 2021-03-07
 ------------------
 
