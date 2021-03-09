@@ -9,7 +9,42 @@ This plugin generates images with your article titles embedded on them. These im
 
 Path to generated image is added to each article / page in `og_image` attribute, so it's easy to use in theme.
 
-Do note that plugin **only** generates images - you must reference them in your output HTML for social media platforms to pick them up. There are themes and plugins that can help with that part. See "Referencing file in output HTML" for brief overview of required changes and available options.
+Do note that plugin **only** generates images - you must reference them in your output HTML for social media platforms to pick them up. There are themes and plugins that can help with that part. See "[Referencing file in output HTML](#referencing-file-in-output-html)" for brief overview of required changes and available options.
+
+* [Generate social media cards: A Plugin for Pelican](#generate-social-media-cards-a-plugin-for-pelican)
+* [Installation](#installation)
+* [Usage](#usage)
+    * [Initial configuration](#initial-configuration)
+    * [Preparing template file](#preparing-template-file)
+    * [Tweaking card visuals](#tweaking-card-visuals)
+        * [Font](#font)
+        * [Line length](#line-length)
+        * [Text placement and alignment](#text-placement-and-alignment)
+    * [Controlling text on the card](#controlling-text-on-the-card)
+    * [Referencing file in output HTML](#referencing-file-in-output-html)
+    * [Iterating on card design](#iterating-on-card-design)
+* [Configuration options](#configuration-options)
+    * [`SOCIAL_CARDS_TEMPLATE`](#social_cards_template)
+    * [`SOCIAL_CARDS_PATH`](#social_cards_path)
+    * [`SOCIAL_CARDS_FORMAT_EXTENSION`](#social_cards_format_extension)
+    * [`SOCIAL_CARDS_FONT_FILENAME`](#social_cards_font_filename)
+    * [`SOCIAL_CARDS_FONT_SIZE`](#social_cards_font_size)
+    * [`SOCIAL_CARDS_FONT_FILL`](#social_cards_font_fill)
+    * [`SOCIAL_CARDS_CANVAS_WIDTH`](#social_cards_canvas_width)
+    * [`SOCIAL_CARDS_CANVAS_HEIGHT`](#social_cards_canvas_height)
+    * [`SOCIAL_CARDS_CANVAS_LEFT`](#social_cards_canvas_left)
+    * [`SOCIAL_CARDS_CANVAS_TOP`](#social_cards_canvas_top)
+    * [`SOCIAL_CARDS_HORIZONTAL_ALIGNMENT`](#social_cards_horizontal_alignment)
+    * [`SOCIAL_CARDS_VERTICAL_ALIGNMENT`](#social_cards_vertical_alignment)
+    * [`SOCIAL_CARDS_LEADING`](#social_cards_leading)
+    * [`SOCIAL_CARDS_WRAPPING_FUNCTION`](#social_cards_wrapping_function)
+    * [`SOCIAL_CARDS_CHARS_PER_LINE`](#social_cards_chars_per_line)
+    * [`SOCIAL_CARDS_KEY_NAME`](#social_cards_key_name)
+    * [`SOCIAL_CARDS_INCLUDE_SITEURL`](#social_cards_include_siteurl)
+    * [`SOCIAL_CARDS_INCLUDE_DRAFTS`](#social_cards_include_drafts)
+    * [`SOCIAL_CARDS_INCLUDE_HIDDEN`](#social_cards_include_hidden)
+    * [`SOCIAL_CARDS_FORCE_SAVE`](#social_cards_force_save)
+* [Contributing](#contributing)
 
 # Installation
 
@@ -39,7 +74,7 @@ That's it! If you build your website now, it will take much longer than usual, a
 
 If you keep your website in git version control system, you probably want to add `social-cards/` to your `.gitignore` file.
 
-Read "Tweaking card visuals" for brief overview of settings that you probably want to change, and "Configuration options" for list of all available settings.
+Read "[Tweaking card visuals](#tweaking-card-visuals)" for brief overview of settings that you probably want to change, and "[Configuration options](#configuration-options)" for list of all available settings.
 
 ## Preparing template file
 
@@ -69,11 +104,11 @@ Content of `SOCIAL_CARDS_TEMPLATE` setting is passed verbatim to `PIL.Image.open
 
 `SOCIAL_CARDS_CHARS_PER_LINE` specifies the maximum number of characters in one line. [`textwrap.wrap()`](https://docs.python.org/3/library/textwrap.html#textwrap.wrap) is used under the hood, which tries to break lines on last whitespace character before maximum length. This setting is passed as `width` parameter to the function.
 
-`SOCIAL_CARDS_WRAPPING_FUNCTION` allows you to specify function that will be used instead of `textwrap.wrap`. This setting may be useful if you have very specific text wrapping requirements. See also "Controlling text on the card" below.
+`SOCIAL_CARDS_WRAPPING_FUNCTION` allows you to specify function that will be used instead of `textwrap.wrap`. This setting may be useful if you have very specific text wrapping requirements. See also "[Controlling text on the card](#controlling-text-on-the-card)" below.
 
 ### Text placement and alignment
 
-The area of image where text should be drawn is called "canvas". Plugin does not enforce the text to actually fit that area, but it will issue the warning when text turns out to be larger than designated area. If you experience multiple such warnings, perhaps canvas size, font size or number of characters per line should be adjusted. If you experience only few of these warnings, take a look at "Controlling text on the card" below for setting custom text on per-article basis.
+The area of image where text should be drawn is called "canvas". Plugin does not enforce the text to actually fit that area, but it will issue the warning when text turns out to be larger than designated area. If you experience multiple such warnings, perhaps canvas size, font size or number of characters per line should be adjusted. If you experience only few of these warnings, take a look at "[Controlling text on the card](#controlling-text-on-the-card)" below for setting custom text on per-article basis.
 
 `SOCIAL_CARDS_CANVAS_WIDTH` is width of text area, in pixels.
 
@@ -192,13 +227,13 @@ Distance from the top border of image to top border of canvas (top margin of can
 
 ## `SOCIAL_CARDS_HORIZONTAL_ALIGNMENT`
 
-Alignment of text within canvas. Valid values are `"left"`, `"center"` and `"right"`. See "Text placement and alignment" above for visual representation of various settings.
+Alignment of text within canvas. Valid values are `"left"`, `"center"` and `"right"`. See "[Text placement and alignment](#text-placement-and-alignment)" above for visual representation of various settings.
 
 *Default value*: `"center"`
 
 ## `SOCIAL_CARDS_VERTICAL_ALIGNMENT`
 
-Alignment of text within canvas. Valid values are `"top"`, `"center"` and `"bottom"`. See "Text placement and alignment" above for visual representation of various settings.
+Alignment of text within canvas. Valid values are `"top"`, `"center"` and `"bottom"`. See "[Text placement and alignment](#text-placement-and-alignment)" above for visual representation of various settings.
 
 *Default value*: `"center"`
 
@@ -228,7 +263,7 @@ Name of article / page attribute that will contain path to generated image (rela
 
 Open graph metadata was never part of Pelican's standard set of content metadata, so various themes and plugins authors had different ideas how that data should be specified. `og_image` seems to be the most popular option by wide margin, but some authors decided to use `featured_image`, `image` or `header_cover`. If you happen to use theme that uses one of these attributes, this setting allows you to use plugin without changing the theme.
 
-Do note that this value also impacts `og_image_text` attribute, described in "Controlling text on the card" section above. In fact, plugin will look into `f"{SOCIAL_CARDS_KEY_NAME}_text"` attribute before using article title as source of text to draw. So if you change this setting to `"featured_image"`, overriding text on per-article basis will be done through `featured_image_text` key.
+Do note that this value also impacts `og_image_text` attribute, described in "[Controlling text on the card](#controlling-text-on-the-card)" section above. In fact, plugin will look into `f"{SOCIAL_CARDS_KEY_NAME}_text"` attribute before using article title as source of text to draw. So if you change this setting to `"featured_image"`, overriding text on per-article basis will be done through `featured_image_text` key.
 
 *Default value*: `"og_image"`
 
