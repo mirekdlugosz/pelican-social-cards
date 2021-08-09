@@ -92,6 +92,9 @@ def attach_metadata(finished_generators):
             og_image_attr = f"{siteurl}/{og_image_attr}"
 
         setattr(content_object, PLUGIN_SETTINGS["KEY_NAME"], og_image_attr)
+        content_metadata = getattr(content_object, "metadata", None)
+        if content_metadata is not None:
+            content_metadata.setdefault(PLUGIN_SETTINGS["KEY_NAME"], og_image_attr)
 
 
 def register():

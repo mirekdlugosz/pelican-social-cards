@@ -145,7 +145,7 @@ Apart from creating image to be used as a card on social media, you must also en
 
 One way of including this HTML is using theme that is aware of open graph tags. Some themes in [pelican-themes](https://github.com/getpelican/pelican-themes) repository have support for open graph images built in. To find these themes, clone the repository and use command like `grep -l -R 'og:image'`.
 
-Another way is using [pelican-seo](https://github.com/pelican-plugins/seo) plugin. That plugin can be used with any theme, as it modifies generated HTML. However, support for open graph tags was added in the git tree after version 1.0.3 was released, which - as of March 2021 - means that you have to install unreleased version of the plugin to use this feature.
+Another way is using [pelican-seo](https://github.com/pelican-plugins/seo) plugin. That plugin can be used with any theme, as it modifies generated HTML. Support for open graph tags was added in version 1.1.0. To generate open graph tags, you need to set `SEO_ENHANCER_OPEN_GRAPH` setting to `True` - however, you need to do that in `pelican/plugins/seo/settings.py` file inside your virtual environment.
 
 ## Iterating on card design
 
