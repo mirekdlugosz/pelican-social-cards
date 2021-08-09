@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+0.4.0 - 2021-08-09
+------------------
+
+Improve compatibility with pelican-seo plugin
+
 0.3.2 - 2021-03-09
 ------------------
 
