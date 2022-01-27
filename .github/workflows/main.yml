@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   PYTEST_ADDOPTS: "--color=yes"
+  CHANGELOG_PATH: "${{ github.workspace }}-CHANGELOG.txt"
 
 jobs:
   test:
@@ -81,6 +82,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -98,10 +101,12 @@ jobs:
           poetry publish -u __token__ -p $PYPI_PASSWORD
       - name: Prepare GitHub release body
         run: |
-          previousTag=$(git tag --sort=-creatordate | sed -n 2p)
-          git shortlog ${previousTag}..${{ github.ref }} > ${{ github.workspace }}-CHANGELOG.txt
+          export previousTag=$(git tag --sort=-creatordate | sed -n 2p)
+          echo '```' > "${{ env.CHANGELOG_PATH }}"
+          git shortlog ${previousTag}..${{ github.ref }} >> "${{ env.CHANGELOG_PATH }}"
+          echo '```' >> "${{ env.CHANGELOG_PATH }}"
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          body_path: "${{ env.CHANGELOG_PATH }}"
           files: "dist/*"
