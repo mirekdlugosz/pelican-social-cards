@@ -4,7 +4,7 @@
 
 This plugin generates images with your article titles embedded on them. These images can then be used as "card" metadata and appear on social media when your post is shared, making these posts more visually appealing. The final effect might look something like this:
 
-| ![sample image](./sample-card.png) |
+| ![sample image](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/sample-card.png) |
 |---|
 
 Path to generated image is added to each article / page in `og_image` attribute, so it's easy to use in theme.
@@ -124,10 +124,10 @@ The area of image where text should be drawn is called "canvas". Plugin does not
 
 `SOCIAL_CARDS_VERTICAL_ALIGNMENT` is alignment of text within canvas. Valid values are `"top"`, `"center"` and `"bottom"`. See below for visual representation of various settings.
 
-| ![Horizontal alignment: left; Vertical alignment: top](tests/img/text_pos_left_top.png) | ![Horizontal alignment: center; Vertical alignment: top](tests/img/text_pos_center_top.png) | ![Horizontal alignment: right; Vertical alignment: top](tests/img/text_pos_right_top.png) |
+| ![Horizontal alignment: left; Vertical alignment: top](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_left_top.png) | ![Horizontal alignment: center; Vertical alignment: top](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_center_top.png) | ![Horizontal alignment: right; Vertical alignment: top](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_right_top.png) |
 |--------------|--------------|--------------|
-| ![Horizontal alignment: left; Vertical alignment: center](tests/img/text_pos_left_center.png) | ![Horizontal alignment: center; Vertical alignment: center](tests/img/text_pos_center_center.png) | ![Horizontal alignment: right; Vertical alignment: center](tests/img/text_pos_right_center.png) |
-| ![Horizontal alignment: left; Vertical alignment: bottom](tests/img/text_pos_left_bottom.png) | ![Horizontal alignment: center; Vertical alignment: bottom](tests/img/text_pos_center_bottom.png) | ![Horizontal alignment: right; Vertical alignment: bottom](tests/img/text_pos_right_bottom.png) |
+| ![Horizontal alignment: left; Vertical alignment: center](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_left_center.png) | ![Horizontal alignment: center; Vertical alignment: center](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_center_center.png) | ![Horizontal alignment: right; Vertical alignment: center](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_right_center.png) |
+| ![Horizontal alignment: left; Vertical alignment: bottom](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_left_bottom.png) | ![Horizontal alignment: center; Vertical alignment: bottom](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_center_bottom.png) | ![Horizontal alignment: right; Vertical alignment: bottom](https://raw.githubusercontent.com/mirekdlugosz/pelican-social-cards/main/tests/img/text_pos_right_bottom.png) |
 
 ## Controlling text on the card
 
