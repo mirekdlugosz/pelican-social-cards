@@ -10,7 +10,7 @@ from pelican.plugins.social_cards.settings import PLUGIN_SETTINGS
 
 
 class FakeArticle:
-    """ Mock Pelican Article object. """
+    """Mock Pelican Article object."""
 
     def __init__(self, settings, metadata, title, url):
         self.settings = settings
@@ -25,7 +25,7 @@ class FakeArticle:
 
 @pytest.fixture()
 def article():
-    """ Create a fake article. """
+    """Create a fake article."""
 
     settings = {
         "SITEURL": "https://www.fakesite.invalid",
