@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6.3"
+python = ">=3.8.1,<4.0"
 pelican = ">=4.5"
 markdown = {version = "^3.5", optional = true}
 pillow = "~=10.1"
