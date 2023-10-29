@@ -28,7 +28,7 @@ class TextBox:
         max_height = 0
 
         for line in self._text:
-            font_width, font_height = self._font.getsize(line)
+            _, _, font_width, font_height = self._font.getbbox(line)
             self._line_dimensions[line] = {
                 "width": font_width,
                 "height": font_height,
