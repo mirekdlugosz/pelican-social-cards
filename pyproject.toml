@@ -25,22 +25,25 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6.3"
-pelican = "^4.5"
-markdown = {version = "^3.2.2", optional = true}
-pillow = "*"
+pelican = ">=4.5"
+markdown = {version = "^3.5", optional = true}
+pillow = "~=10.1"
 
-[tool.poetry.dev-dependencies]
-black = {version = "^21.7b0", allow-prereleases = true}
-flake8 = "^3.9.2"
-flake8-black = "^0.2.3"
-invoke = "^1.6.0"
-isort = "^5.9.3"
-markdown = "^3.2.2"
-pytest = "^6.2.4"
-pytest-cov = "^2.12.1"
-pytest-pythonpath = "^0.7.3"
-pytest-sugar = "^0.9.4"
-Werkzeug = "^1.0"
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+flake8 = "*"
+flake8-black = "*"
+invoke = "*"
+isort = "*"
+markdown = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-pythonpath = "*"
+pytest-sugar = "*"
+Werkzeug = "*"
 
 [tool.poetry.extras]
 markdown = ["markdown"]
