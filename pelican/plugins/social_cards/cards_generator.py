@@ -86,6 +86,16 @@ class CardsGenerator:
             title = title.replace("</span>", "")
             title = html.unescape(title)
 
+        metadata_series = getattr(article, "series", None)
+        if metadata_series and PLUGIN_SETTINGS["INCLUDE_SERIES"]:
+            try:
+                series = metadata_series["name"]
+            except (TypeError, KeyError):
+                series = metadata_series
+
+            series = PLUGIN_SETTINGS["SERIES_FORMAT"].format(series)
+            title = "{series}{title}".format(series=series, title=title)
+
         title = wrapping_function(
             title.strip(), width=PLUGIN_SETTINGS["CHARS_PER_LINE"]
         )

@@ -285,6 +285,24 @@ Do note that this value also impacts `og_image_text` attribute, described in "[C
 
 *Default value*: `"og_image"`
 
+## `SOCIAL_CARDS_INCLUDE_SERIES`
+
+If `True`, article series name will be included before title in text written on the card.
+
+Series name is defined by "Series" metadata key, as understood by [pelican-series plugin](https://github.com/pelican-plugins/series).
+
+Note that series name inclusion will work also when you do not have series plugin installed. Set this to `False` if your post titles already have series identifier.
+
+*Default value*: `False`
+
+## `SOCIAL_CARDS_SERIES_FORMAT`
+
+String template for article series name.
+
+Python `format()` method will be called on this string, with series name as the only parameter. `{}` will be replaced by series name. Use `{{` for literal `{` and `}}` for literal `}`. If you want to surround series name with curly brackets, set this to `{{{}}} `.
+
+*Default value*: `"{}: "`
+
 ## `SOCIAL_CARDS_INCLUDE_SITEURL`
 
 If `True`, path to generated image (article / page `og_image` attribute) will include `SITEURL` setting value at the start.
