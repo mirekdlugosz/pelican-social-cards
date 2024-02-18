@@ -1,6 +1,6 @@
 # Generate social media cards: A Plugin for Pelican
 
-[![Build Status](https://img.shields.io/github/workflow/status/mirekdlugosz/pelican-social-cards/build)](https://github.com/mirekdlugosz/pelican-social-cards/actions) [![PyPI Version](https://img.shields.io/pypi/v/pelican-social-cards)](https://pypi.org/project/pelican-social-cards/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/mirekdlugosz/pelican-social-cards/main.yml?branch=main)](https://github.com/mirekdlugosz/pelican-social-cards/actions) [![PyPI Version](https://img.shields.io/pypi/v/pelican-social-cards)](https://pypi.org/project/pelican-social-cards/)
 
 This plugin generates images with your article titles embedded on them. These images can then be used as "card" metadata and appear on social media when your post is shared, making these posts more visually appealing. The final effect might look something like this:
 
