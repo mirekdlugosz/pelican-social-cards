@@ -11,7 +11,7 @@ from pelican.plugins.social_cards.cards_generator import TextBox
 def test_text_box_dimensions(
     default_settings, cards_generator, property_name, expected
 ):
-    """Check calculated text_box dimensions"""
+    """Check calculated text_box dimensions."""
     text = ["This is fake text", "with", "variable-length", "lines"]
     tb = TextBox(text, cards_generator._font)
 

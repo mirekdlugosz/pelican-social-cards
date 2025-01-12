@@ -91,22 +91,9 @@ ignore = [
   "D213",    # multi-line docstring summary should start at the second line
   "ISC001",  # disabled so `ruff format` works without warning
   "RET504",  # Unnecessary assignment before `return` statement
-  # FIXME: we should fix these errors, or ignore them in more targeted way
-  "D101",
-  "D102",
-  "D103",
-  "D107",
-  "D202",
-  "D205",
-  "D210",
-  "D212",
-  "D400",
-  "D415",
-  "UP028",
-  "UP032",
-  "RUF010",
-  "TRY400",
-  "PGH004",
+  # Not shared by other plugins
+  "D103",    # Missing docstring in public function
+  "D107",    # Missing docstring in `__init__`
 ]
 
 [tool.ruff.lint.isort]

@@ -71,7 +71,7 @@ def populate_plugin_settings(pelican_instance):
         try:
             PLUGIN_SETTINGS[key] = int(PLUGIN_SETTINGS[key])
         except ValueError:
-            logger.error(f"SOCIAL_CARDS_{key} must be a number")
+            logger.error(f"SOCIAL_CARDS_{key} must be a number")  # noqa: TRY400
 
     for key in ("VERTICAL", "HORIZONTAL"):
         valid_values = VALID_ALIGNMENTS.get(key)

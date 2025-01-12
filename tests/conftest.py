@@ -1,4 +1,4 @@
-""" Mocks Pelican objects required for the units tests. """
+"""Mocks Pelican objects required for the units tests."""
 
 import textwrap
 
@@ -19,6 +19,7 @@ class FakeArticle:
         self.url = url
 
     def set_custom_data(self, data):
+        """Set arbitrary data of the object."""
         for key, value in data.items():
             setattr(self, key, value)
 
@@ -26,7 +27,6 @@ class FakeArticle:
 @pytest.fixture()
 def article():
     """Create a fake article."""
-
     settings = {
         "SITEURL": "https://www.fakesite.invalid",
     }

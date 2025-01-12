@@ -11,6 +11,8 @@ TYPOGRIFY_SPAN_CLASSES = ("amp", "caps", "dquo", "quo")
 
 
 class TextBox:
+    """Helper that breaks long line into a list of shorter lines."""
+
     def __init__(self, text, font):
         self._text = text
         self._font = font
@@ -40,11 +42,13 @@ class TextBox:
         self.lines = len(self._text)
         self.height = self.line_height * self.lines - leading
 
-    def width_of_line(self, line):
+    def width_of_line(self, line):  # noqa: D102
         return self._line_dimensions.get(line, {}).get("width", 0)
 
 
 class CardsGenerator:
+    """Main class that generates social media images."""
+
     _font = None
     _template = None
 
@@ -65,7 +69,7 @@ class CardsGenerator:
 
         if canvas_w > template_w or canvas_h > template_h:
             logger.warning(
-                (
+                (  # noqa: UP032
                     "pelican.plugins.social_cards: Template size is {}x{}, "
                     "bottom right corner of canvas is at ({}, {})\n"
                     "Part of the text may be drawn outside of image borders."
@@ -94,7 +98,7 @@ class CardsGenerator:
                 series = metadata_series
 
             series = PLUGIN_SETTINGS["SERIES_FORMAT"].format(series)
-            title = "{series}{title}".format(series=series, title=title)
+            title = f"{series}{title}"
 
         title = wrapping_function(
             title.strip(), width=PLUGIN_SETTINGS["CHARS_PER_LINE"]
@@ -183,6 +187,7 @@ class CardsGenerator:
         return img
 
     def create_for_object(self, content_object):
+        """Create a card for Pelican article object."""
         logger.debug(
             f"pelican-social-cards: generating image for {content_object.source_path}"
         )

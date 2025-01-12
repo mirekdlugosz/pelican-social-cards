@@ -1,9 +1,7 @@
-"""
-pelican.plugins.social_cards
-===================================
+"""pelican.plugins.social_cards
 
 Plugin to generate social media cards with post title embedded
-"""
+"""  # noqa: D400,D415
 
 import itertools
 import logging
@@ -39,8 +37,7 @@ def generator_content(generator):
         getattr(generator, source_name, []) for source_name in content_sources
     ]
 
-    for content_object in itertools.chain(*all_content):
-        yield content_object
+    yield from itertools.chain(*all_content)
 
 
 def generate_cards(generator):
