@@ -9,9 +9,8 @@ import itertools
 import logging
 from pathlib import Path
 
-from pelican.generators import ArticlesGenerator, PagesGenerator, StaticGenerator
-
 from pelican import signals
+from pelican.generators import ArticlesGenerator, PagesGenerator, StaticGenerator
 
 from .cards_generator import CardsGenerator
 from .settings import PLUGIN_SETTINGS, populate_plugin_settings
