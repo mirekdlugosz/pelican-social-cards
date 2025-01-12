@@ -1,6 +1,6 @@
 [project]
 name = "pelican-social-cards"
-version = "0.6.1"
+version = "0.6.2"
 description = "Plugin to generate social media cards with post title embedded"
 authors = [
     {name = "Mirek Długosz", email = "mirek@mirekdlugosz.com"},
