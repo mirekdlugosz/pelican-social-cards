@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry run pip install -U pip
-          poetry install --with=dev
+          poetry install --all-extras
       - name: Run tests
         run: poetry run pytest
 
@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry run pip install -U pip
-          poetry install --with=dev
+          poetry install --all-extras
       - name: Run linters
         run: poetry run invoke lint
 
