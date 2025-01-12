@@ -27,7 +27,7 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
     "pelican>=4.5",
-    "pillow (>=10.1,<11.0)",
+    "pillow (>=11.1,<12.0)",
 ]
 
 [project.optional-dependencies]
